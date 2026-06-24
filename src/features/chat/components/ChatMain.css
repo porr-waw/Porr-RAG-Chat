@@ -4,53 +4,138 @@
   grid-template-rows: auto minmax(0, 1fr) auto;
   min-width: 0;
   overflow: hidden;
-  background: var(--page-bg);
+  background:
+    radial-gradient(circle at 42% -16%, rgba(255, 237, 0, 0.075), transparent 34%),
+    var(--page-bg);
 }
 
 .chat-main__toolbar {
+  position: relative;
+  z-index: 4;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 18px;
   padding: 18px 24px;
-  background: var(--surface);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), transparent),
+    color-mix(in srgb, var(--surface) 94%, transparent);
   border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(16px) saturate(140%);
+}
+
+.chat-main__heading {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.chat-main__agent-pill {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  padding: 4px 9px;
+  border: 1px solid rgba(255, 237, 0, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 237, 0, 0.08);
+  color: var(--accent-text);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .chat-main__label {
-  margin: 0 0 2px;
+  margin: 0;
   color: var(--text-muted);
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
 }
 
 .chat-main__title {
+  max-width: min(560px, 54vw);
+  overflow: hidden;
   margin: 0;
   color: var(--text-main);
-  font-size: 20px;
+  font-size: clamp(18px, 2vw, 22px);
+  font-weight: 950;
+  letter-spacing: -0.025em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-main__context {
+  margin: 2px 0 0;
+  color: var(--text-soft);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.chat-main__toolbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.chat-main__doc-health {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  font-size: 12.5px;
   font-weight: 850;
+  white-space: nowrap;
+}
+
+.chat-main__doc-health strong {
+  color: var(--accent-text);
+  font-size: 14px;
+  font-weight: 950;
 }
 
 .chat-main__documents {
   min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 0 14px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: 999px;
   background: var(--surface);
-  color: var(--porr-blue);
-  font-weight: 800;
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .chat-main__documents:hover {
-  border-color: var(--porr-blue);
+  transform: translateY(-1px);
+  border-color: var(--porr-yellow);
+  box-shadow: var(--shadow-sm);
 }
 
 .chat-main__documents--active {
-  border-color: var(--porr-blue);
-  background: var(--porr-yellow);
-  color: var(--porr-blue);
+  border-color: var(--porr-yellow);
+  background: rgba(255, 237, 0, 0.12);
+  color: var(--accent-text);
 }
 
 .chat-main__error {
@@ -63,7 +148,7 @@
   border: 1px solid rgba(180, 35, 24, 0.25);
   border-left: 4px solid var(--error);
   border-radius: var(--radius-md);
-  background: #fff5f5;
+  background: rgba(255, 107, 107, 0.10);
   color: var(--error);
   font-size: 14px;
   font-weight: 750;
@@ -95,30 +180,50 @@
   font-size: 14px;
 }
 
+@media (max-width: 760px) {
+  .chat-main__toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .chat-main__title {
+    max-width: 100%;
+  }
+
+  .chat-main__toolbar-actions {
+    justify-content: stretch;
+  }
+
+  .chat-main__doc-health,
+  .chat-main__documents {
+    flex: 1;
+  }
+}
+
 @media (max-width: 640px) {
   .chat-main__error {
     flex-direction: column;
     align-items: flex-start;
     margin: 12px 14px 0;
   }
-}
 
-@media (max-width: 640px) {
-  .chat-main__toolbar {
-    padding: 16px;
-  }
-
-  .chat-main__documents {
+  .chat-main__agent-pill,
+  .chat-main__context {
     display: none;
   }
 
-  .chat-main__title {
-    font-size: 17px;
+  .chat-main__doc-health {
+    display: none;
   }
 }
-.chat-main__documents {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-main__documents {
+    transition: none;
+  }
+
+  .chat-main__documents:hover {
+    transform: none;
+  }
 }

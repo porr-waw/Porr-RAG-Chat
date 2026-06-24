@@ -35,7 +35,7 @@
   margin: 4px 0;
 }
 .md__ul li::marker {
-  color: var(--porr-yellow, #ffed00);
+  color: var(--accent-text, #6d5300);
 }
 
 .md__quote {
@@ -105,7 +105,7 @@
 }
 
 .md__link {
-  color: var(--porr-yellow, #ffed00);
+  color: var(--accent-text, #6d5300);
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 3px;

@@ -47,7 +47,7 @@
 .chat-message-list__jump span {
   font-size: 15px;
   line-height: 1;
-  color: var(--porr-yellow, #ffed00);
+  color: var(--accent-text, #6d5300);
 }
 
 @keyframes chat-jump-in {

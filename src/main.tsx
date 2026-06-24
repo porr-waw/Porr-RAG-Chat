@@ -4,14 +4,14 @@ import { App } from './app/App';
 import { ConfirmDialogProvider } from './features/ui/confirm/ConfirmDialog';
 
 import './styles/theme.css';
-import './styles/global.css';
-import './styles/dark-overrides.css';
+import './styles/product-polish.css';
 
 // Domyślny motyw ustawiany natychmiast (przed renderem React), żeby uniknąć
 // mignięcia nieostylowanej treści. useDarkMode() i tak nadpisze go preferencją
-// zapisaną w IndexedDB, jeśli istnieje.
+// zapisaną w IndexedDB, jeśli istnieje. PORR komunikuje się przez biel +
+// granat + żółć jako akcent — jasny motyw jest tu domyślny, nie ciemny.
 if (!document.documentElement.dataset.theme) {
-  document.documentElement.dataset.theme = 'dark';
+  document.documentElement.dataset.theme = 'light';
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

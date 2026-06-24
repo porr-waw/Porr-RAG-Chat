@@ -76,7 +76,7 @@ export function ChatSidebar({
   }
 
   return (
-    <aside className="chat-sidebar" aria-label="Historia rozmów">
+    <aside id="chat-sidebar" className="chat-sidebar" aria-label="Historia rozmów">
       <button
         className="chat-sidebar__new-chat"
         type="button"

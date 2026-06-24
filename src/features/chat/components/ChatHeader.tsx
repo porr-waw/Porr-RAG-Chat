@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
+import type { DarkMode } from '../hooks/useDarkMode';
 import { Icon } from '../../ui/icons/Icon';
-import { useDarkMode } from '../hooks/useDarkMode';
 
 import './ChatHeader.css';
 
@@ -9,7 +9,10 @@ type AppView = 'chat' | 'documents';
 
 type ChatHeaderProps = {
   activeView: AppView;
+  themeMode: DarkMode;
   onChangeView: (view: AppView) => void;
+  onToggleTheme: () => void;
+  onOpenSettings: () => void;
   onExportAll?: () => void;
   onClearHistory?: () => void;
 };
@@ -25,29 +28,37 @@ const IS_MOCK_MODE =
   RAG_STREAM_PROTOCOL === 'mock-app' ||
   RAG_STREAM_PATH.includes('/mock/');
 
+function getThemeButtonLabel(mode: DarkMode) {
+  if (mode === 'system') return 'Tryb systemowy';
+  return mode === 'dark' ? 'Włącz tryb jasny' : 'Włącz tryb ciemny';
+}
+
 export function ChatHeader({
   activeView,
+  themeMode,
   onChangeView,
+  onToggleTheme,
+  onOpenSettings,
   onExportAll,
   onClearHistory,
 }: ChatHeaderProps) {
-  const { mode, toggle } = useDarkMode();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isMenuOpen) return;
+
     function onDoc(e: MouseEvent) {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(e.target as Node)
-      ) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setIsMenuOpen(false);
       }
     }
+
     document.addEventListener('mousedown', onDoc);
     return () => document.removeEventListener('mousedown', onDoc);
   }, [isMenuOpen]);
+
+  const themeLabel = getThemeButtonLabel(themeMode);
 
   return (
     <header className="chat-header">
@@ -56,7 +67,7 @@ export function ChatHeader({
           K
         </div>
 
-        <div>
+        <div className="chat-header__brand-copy">
           <p className="chat-header__eyebrow">PORR · Document Assistant</p>
           <h1 className="chat-header__title">Korpus</h1>
         </div>
@@ -96,22 +107,30 @@ export function ChatHeader({
         <button
           type="button"
           className="chat-header__icon-btn"
-          aria-label={
-            mode === 'dark'
-              ? 'Włącz tryb jasny'
-              : 'Włącz tryb ciemny'
-          }
-          title={mode === 'dark' ? 'Tryb jasny' : 'Tryb ciemny'}
-          onClick={toggle}
+          aria-label={themeLabel}
+          title={themeLabel}
+          onClick={onToggleTheme}
         >
-          <span aria-hidden="true">{mode === 'dark' ? '☀' : '☾'}</span>
+          <span aria-hidden="true">
+            {themeMode === 'system' ? '◐' : themeMode === 'dark' ? '☀' : '☾'}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          className="chat-header__icon-btn chat-header__icon-btn--settings"
+          aria-label="Otwórz ustawienia agenta"
+          title="Ustawienia"
+          onClick={onOpenSettings}
+        >
+          <Icon name="settings" size={18} />
         </button>
 
         <div className="chat-header__menu-wrap" ref={menuRef}>
           <button
             type="button"
             className="chat-header__icon-btn"
-            aria-label="Menu ustawień"
+            aria-label="Menu dodatkowe"
             aria-expanded={isMenuOpen}
             onClick={() => setIsMenuOpen((v) => !v)}
           >
@@ -120,6 +139,18 @@ export function ChatHeader({
 
           {isMenuOpen ? (
             <div className="chat-header__menu" role="menu">
+              <p className="chat-header__menu-section">Agent</p>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  onOpenSettings();
+                }}
+              >
+                Ustawienia interfejsu
+              </button>
+
               <p className="chat-header__menu-section">Historia rozmów</p>
               {onExportAll ? (
                 <button
@@ -147,11 +178,12 @@ export function ChatHeader({
                 </button>
               ) : null}
 
-              <p className="chat-header__menu-section">Pomoc</p>
+              <p className="chat-header__menu-section">Skróty</p>
               <div className="chat-header__shortcuts" role="note">
                 <span><kbd>Ctrl</kbd> + <kbd>K</kbd> — nowy chat</span>
                 <span><kbd>Ctrl</kbd> + <kbd>/</kbd> — szukaj rozmów</span>
                 <span><kbd>Ctrl</kbd> + <kbd>L</kbd> — fokus na input</span>
+                <span><kbd>Ctrl</kbd> + <kbd>,</kbd> — ustawienia</span>
               </div>
             </div>
           ) : null}

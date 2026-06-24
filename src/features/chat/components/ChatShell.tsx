@@ -25,9 +25,13 @@ import * as history from '../storage/chatHistory';
 import { useChatSessions } from '../hooks/useChatSessions';
 import { useChatMessages } from '../hooks/useChatMessages';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
+import { useDarkMode } from '../hooks/useDarkMode';
 
 import { DocumentsManager } from '../../documents/components/DocumentsManager';
 import { ToastViewport } from '../../ui/toasts/ToastViewport';
+import { AppSettingsDialog } from '../../ui/settings/AppSettingsDialog';
+import { Icon } from '../../ui/icons/Icon';
+import { useAppSettings } from '../../ui/settings/useAppSettings';
 import { useToasts } from '../../ui/toasts/useToasts';
 import { useConfirm } from '../../ui/confirm/ConfirmDialog';
 import { DOCUMENT_POLLING_CONFIG } from '../../documents/config/documentPollingConfig';
@@ -46,8 +50,12 @@ type AppView = 'chat' | 'documents';
 export function ChatShell() {
   const { toasts, showToast, removeToast } = useToasts();
   const confirm = useConfirm();
+  const { mode, setMode, toggle: toggleTheme } = useDarkMode();
+  const { settings, updateSettings, resetSettings } = useAppSettings();
 
   const [activeView, setActiveView] = useState<AppView>('chat');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   /* ---------------- chats + messages (IndexedDB) ---------------- */
   const sessions = useChatSessions({
@@ -603,6 +611,12 @@ export function ChatShell() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [documents]);
 
+  useEffect(() => {
+    if (activeView !== 'chat') {
+      setIsSidebarOpen(false);
+    }
+  }, [activeView]);
+
   /* ---------------- keyboard shortcuts ---------------- */
   useKeyboardShortcuts([
     {
@@ -632,6 +646,7 @@ export function ChatShell() {
       label: 'Zamknij panele',
       handler: () => {
         setIsDocumentsPanelOpen(false);
+        setIsSidebarOpen(false);
       },
     },
     {
@@ -641,6 +656,15 @@ export function ChatShell() {
       handler: (e) => {
         e.preventDefault();
         inputRef.current?.focus();
+      },
+    },
+    {
+      key: ',',
+      ctrl: true,
+      label: 'Ustawienia',
+      handler: (e) => {
+        e.preventDefault();
+        setIsSettingsOpen(true);
       },
     },
   ]);
@@ -653,13 +677,41 @@ export function ChatShell() {
     <div className="chat-shell">
       <ChatHeader
         activeView={activeView}
+        themeMode={mode}
         onChangeView={setActiveView}
+        onToggleTheme={toggleTheme}
+        onOpenSettings={() => setIsSettingsOpen(true)}
         onExportAll={handleExportAll}
         onClearHistory={handleClearAllHistory}
       />
 
       {activeView === 'chat' ? (
-        <div className="chat-shell__body">
+        <div
+          className={
+            isSidebarOpen
+              ? 'chat-shell__body chat-shell__body--sidebar-open'
+              : 'chat-shell__body'
+          }
+        >
+          <button
+            type="button"
+            className="chat-shell__mobile-sidebar-toggle"
+            aria-expanded={isSidebarOpen}
+            aria-controls="chat-sidebar"
+            onClick={() => setIsSidebarOpen((value) => !value)}
+          >
+            <Icon name="chat" size={17} />
+            <span>Rozmowy</span>
+            <strong>{sessions.chats.length}</strong>
+          </button>
+
+          <button
+            type="button"
+            className="chat-shell__mobile-backdrop"
+            aria-label="Zamknij listę rozmów"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+
           <ChatSidebar
             chats={sessions.chats}
             activeChatId={sessions.activeChatId}
@@ -668,7 +720,10 @@ export function ChatShell() {
             isInteractionLocked={messagesState.isSending}
             chatActionId={sessions.actionId}
             onCreateChat={handleCreateChat}
-            onSelectChat={sessions.selectChat}
+            onSelectChat={(chatId) => {
+              sessions.selectChat(chatId);
+              setIsSidebarOpen(false);
+            }}
             onRenameChat={sessions.renameChat}
             onDeleteChat={handleDeleteChat}
             onTogglePinChat={sessions.togglePinChat}
@@ -700,6 +755,7 @@ export function ChatShell() {
             onRefreshDocuments={() => loadDocuments()}
             onRegenerateLast={handleRegenerateLast}
             onEditAndResend={handleEditAndResend}
+            onOpenDocumentsView={() => setActiveView('documents')}
           />
         </div>
       ) : (
@@ -734,6 +790,16 @@ export function ChatShell() {
           onMoveDocuments={handleMoveDocuments}
         />
       )}
+
+      <AppSettingsDialog
+        isOpen={isSettingsOpen}
+        themeMode={mode}
+        settings={settings}
+        onClose={() => setIsSettingsOpen(false)}
+        onThemeModeChange={setMode}
+        onSettingsChange={updateSettings}
+        onReset={resetSettings}
+      />
 
       <ToastViewport toasts={toasts} onRemoveToast={removeToast} />
     </div>

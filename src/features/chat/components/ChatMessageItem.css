@@ -46,7 +46,7 @@
 }
 
 .chat-message__streaming-tag {
-  color: var(--porr-yellow);
+  color: var(--accent-text);
   font-weight: 800;
   text-transform: none;
   letter-spacing: 0;

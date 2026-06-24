@@ -14,6 +14,9 @@ type ChatMessageListProps = {
   onRegenerateLast?: () => void;
   onEditAndResend?: (messageId: string, newContent: string) => void;
   onRetryError?: () => void;
+  documentCount?: number;
+  readyDocumentCount?: number;
+  onOpenDocuments?: () => void;
 };
 
 /** Próg (px) od dołu, poniżej którego uznajemy, że user „jest na dole”. */
@@ -27,6 +30,9 @@ export function ChatMessageList({
   onRegenerateLast,
   onEditAndResend,
   onRetryError,
+  documentCount = 0,
+  readyDocumentCount = 0,
+  onOpenDocuments,
 }: ChatMessageListProps) {
   const scrollRef = useRef<HTMLElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -85,6 +91,9 @@ export function ChatMessageList({
     return (
       <EmptyState
         disabled={isSending}
+        documentCount={documentCount}
+        readyDocumentCount={readyDocumentCount}
+        onOpenDocuments={onOpenDocuments}
         onSuggest={(prompt) => onSuggestPrompt?.(prompt)}
       />
     );

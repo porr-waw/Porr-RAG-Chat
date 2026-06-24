@@ -40,6 +40,7 @@ type ChatMainProps = {
   onRefreshDocuments: () => void;
   onRegenerateLast?: () => void;
   onEditAndResend?: (messageId: string, newContent: string) => void;
+  onOpenDocumentsView?: () => void;
 };
 
 export function ChatMain({
@@ -65,6 +66,7 @@ export function ChatMain({
   onRefreshDocuments,
   onRegenerateLast,
   onEditAndResend,
+  onOpenDocumentsView,
 }: ChatMainProps) {
   const [sourcesMessage, setSourcesMessage] = useState<ChatMessage | null>(null);
 
@@ -72,22 +74,39 @@ export function ChatMain({
     (d) => d.status === 'ready'
   ).length;
 
+  const totalDocumentsCount = documents.length;
   const documentsButtonLabel =
     documentScope === 'all'
       ? `Dokumenty: ${readyDocumentsCount}`
       : `Wybrane: ${selectedDocumentIds.length}`;
+  const contextLabel =
+    documentScope === 'all'
+      ? 'Zakres: wszystkie gotowe dokumenty'
+      : selectedDocumentIds.length > 0
+        ? `Zakres: ${selectedDocumentIds.length} wybr.`
+        : 'Zakres: brak wyboru';
 
   return (
     <main className="chat-main">
       <div className="chat-main__toolbar">
-        <div>
+        <div className="chat-main__heading">
+          <span className="chat-main__agent-pill">
+            <Icon name="sparkles" size={14} />
+            Agent RAG
+          </span>
           <p className="chat-main__label">Aktywny chat</p>
           <h2 className="chat-main__title">
             {activeChat ? activeChat.title : 'Nowa rozmowa'}
           </h2>
+          <p className="chat-main__context">{contextLabel}</p>
         </div>
 
-        <button
+        <div className="chat-main__toolbar-actions">
+          <span className="chat-main__doc-health" title="Gotowe / wszystkie dokumenty">
+            <strong>{readyDocumentsCount}</strong> / {totalDocumentsCount} gotowe
+          </span>
+
+          <button
           className={
             isDocumentsPanelOpen
               ? 'chat-main__documents chat-main__documents--active'
@@ -100,7 +119,8 @@ export function ChatMain({
         >
           <Icon name="documents" size={16} />
           <span>{documentsButtonLabel}</span>
-        </button>
+          </button>
+        </div>
       </div>
 
       {error ? (
@@ -123,6 +143,9 @@ export function ChatMain({
           onRegenerateLast={onRegenerateLast}
           onEditAndResend={onEditAndResend}
           onRetryError={onRegenerateLast}
+          documentCount={documents.length}
+          readyDocumentCount={readyDocumentsCount}
+          onOpenDocuments={onOpenDocumentsView}
         />
       )}
 
